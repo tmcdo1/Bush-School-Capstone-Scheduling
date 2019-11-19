@@ -16,9 +16,5 @@ def ReadCsv():
             print(row)
 
 
-<<<<<<< HEAD
 if __name__ == '__main__':
-    writeToTrainFile()
-=======
-ReadCsv()
->>>>>>> cbece5537207c27635adac1c8162c5f7d1bafbf4
+    ReadCsv()
