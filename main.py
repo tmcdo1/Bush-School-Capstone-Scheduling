@@ -104,7 +104,8 @@ def readStudentCsv():
             students.append(person)
 
 
-readProjectCsv()
-print(projects)
-readStudentCsv()
-print(students)
+if __name__ == '__main__':
+    readProjectCsv()
+    print(projects)
+    readStudentCsv()
+    print(students)
