@@ -64,6 +64,7 @@ def readProjectCsv():
             proj.skills = row[3].split(', ')
             for skill in row[4].split(', '):
                 proj.skills.append(skill)
+            proj.skills.remove('')
 
             proj.students = []
             projects.append(proj)
@@ -99,13 +100,16 @@ def readStudentCsv():
 
             person.compatibility = {}
             for proj in projects:
-                person.compatibility.update({proj.track: 0.0})
+                person.compatibility.update({proj.title: 0.0})
 
             students.append(person)
 
 
 if __name__ == '__main__':
     readProjectCsv()
-    print(projects)
+    # for proj in projects:
+    #     print(proj.skills)
     readStudentCsv()
-    print(students)
+    # for stud in students:
+    #     print(stud.compatibility)
+    #     print(stud.preferences)
