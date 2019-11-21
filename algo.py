@@ -1,5 +1,5 @@
-
-
+# from main import Student, Project
+import heapq
 PROJECT_MIN = 6
 PROJECT_MAX = 10
 
@@ -10,13 +10,13 @@ PROJECT_MAX = 10
 def populate_project_dict(projects: list):
     project_dict = {}
     for project in projects:
-        project_dict[project.title] = project
+        project_dict.update({project.title: project})
     return project_dict
 
 
 def assign_first_choices(students: list, projects: dict):
     for student in students:
-        first_choice_name = student.preferences['1']
+        first_choice_name = student.preferences[1]
         projects[first_choice_name].students.append(student)
 
 
@@ -27,7 +27,7 @@ def valid_project_student_sizes(projects: dict):
     return True
 
 
-def assign_compatibility(student: Student, projects: list):
+def assign_compatibility(student, projects: list):
     compatibility_dict = {}
     for project in projects:
         compatibility = 0.0
@@ -74,9 +74,38 @@ def run_matching(students: list, projects: list):
     assign_first_choices(students, projects_dict)
 
     # Step 3
-    if valid_project_student_sizes(projects_dict):
-        return list(projects_dict.values())
+    # if valid_project_student_sizes(projects_dict):
+    #     # print("valid 1st")
+    # return list(projects_dict.values())
 
     # Step 4
     for student in students:
         student.compatibility = assign_compatibility(student, projects)
+        # print(student.compatibility)
+
+    # Step 5
+    ProjectList = []
+    for project in projects:
+        StudentList = []
+        for student in students:
+            data = (student.compatibility[project.title], student.name)
+            StudentList.append(data)
+        ProjectList.append(StudentList)
+
+    for i in range(len(ProjectList)):
+        ProjectList[i] = sorted(ProjectList[i], reverse=True)
+        # print(ProjectList[i])
+
+    for i in range(PROJECT_MAX):
+        for StudentList in ProjectList:
+            if(i < len(StudentList)):
+                name = StudentList[i][1]
+                # print(f"removing {name}")
+                for StudentList2 in ProjectList:
+                    for data in StudentList2:
+                        if data[1] == name and StudentList != StudentList2:
+                            StudentList2.remove(data)
+                            # print(StudentList2)
+
+    for i in range(len(ProjectList)):
+        print(projects[i].title, ProjectList[i])

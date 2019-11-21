@@ -2,6 +2,7 @@ import os
 import csv
 from tkinter import filedialog, messagebox
 from tkinter import *
+from algo import run_matching
 
 
 class Project:
@@ -113,3 +114,4 @@ if __name__ == '__main__':
     # for stud in students:
     #     print(stud.compatibility)
     #     print(stud.preferences)
+    run_matching(students, projects)
