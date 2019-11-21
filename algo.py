@@ -95,6 +95,7 @@ def run_matching(students: list, projects: list):
     for i in range(len(ProjectList)):
         ProjectList[i] = sorted(ProjectList[i], reverse=True)
         # print(ProjectList[i])
+    ProjectList = sorted(ProjectList, reverse=True)
 
     for i in range(PROJECT_MAX):
         for StudentList in ProjectList:

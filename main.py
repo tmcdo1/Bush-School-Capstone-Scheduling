@@ -49,9 +49,9 @@ students = []
 
 
 def readProjectCsv():
-    csv_path = filedialog.askopenfilename(
-        initialdir="/", title="Select Project CSV File", filetypes=(("csv files", "*.csv"), ("all files", "*.*")))
-
+    # csv_path = filedialog.askopenfilename(
+    #     initialdir="/", title="Select Project CSV File", filetypes=(("csv files", "*.csv"), ("all files", "*.*")))
+    csv_path = "/Users/shreyshah/Projects/Bush-School-Capstone-Scheduling/Bush Faculty (Responses).csv"
     with open(csv_path) as csvfile:
         readCSV = csv.reader(csvfile, delimiter=',')
         next(readCSV)
@@ -73,8 +73,11 @@ def readProjectCsv():
 
 def readStudentCsv():
     # gui to select file
-    csv_path = filedialog.askopenfilename(
-        initialdir="/", title="Select Student CSV File", filetypes=(("csv files", "*.csv"), ("all files", "*.*")))
+    # csv_path = filedialog.askopenfilename(
+    #     initialdir="/", title="Select Student CSV File", filetypes=(("csv files", "*.csv"), ("all files", "*.*")))
+
+    csv_path = "/Users/shreyshah/Projects/Bush-School-Capstone-Scheduling/Bush School Student (Responses).csv"
+
     # print
     with open(csv_path) as csvfile:
         readCSV = csv.reader(csvfile, delimiter=',')
