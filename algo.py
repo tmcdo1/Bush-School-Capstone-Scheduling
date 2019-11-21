@@ -74,9 +74,9 @@ def run_matching(students: list, projects: list):
     assign_first_choices(students, projects_dict)
 
     # Step 3
-    # if valid_project_student_sizes(projects_dict):
-    #     # print("valid 1st")
-    # return list(projects_dict.values())
+    if valid_project_student_sizes(projects_dict):
+        # print("valid 1st")
+        return list(projects_dict.values())
 
     # Step 4
     for student in students:
