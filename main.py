@@ -49,6 +49,7 @@ students = []
 
 
 def readProjectCsv():
+    messagebox.showinfo("Select Project CSV File", "Select Project CSV File")
     csv_path = filedialog.askopenfilename(
         initialdir="/", title="Select Project CSV File", filetypes=(("csv files", "*.csv"), ("all files", "*.*")))
     with open(csv_path) as csvfile:
@@ -72,6 +73,7 @@ def readProjectCsv():
 
 def readStudentCsv():
     # gui to select file
+    messagebox.showinfo("Select Student CSV File", "Select Student CSV File")
     csv_path = filedialog.askopenfilename(
         initialdir="/", title="Select Student CSV File", filetypes=(("csv files", "*.csv"), ("all files", "*.*")))
 
@@ -94,7 +96,7 @@ def readStudentCsv():
 
             person.research_interest = row[8].split(', ')
 
-            person.relevant = (row[9] == 'Yes')
+            person.relevant = (row[9] == 'Yes' and row[10] != "")
 
             if (person.relevant):
                 person.addition_details = row[10]
@@ -108,10 +110,5 @@ def readStudentCsv():
 
 if __name__ == '__main__':
     readProjectCsv()
-    # for proj in projects:
-    #     print(proj.skills)
     readStudentCsv()
-    # for stud in students:
-    #     print(stud.compatibility)
-    #     print(stud.preferences)
     run_matching(students, projects)

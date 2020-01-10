@@ -22,7 +22,7 @@ def assign_first_choices(students: list, projects: dict):
 
 def valid_project_student_sizes(projects: dict):
     for project in projects.values():
-        if len(project.students) < PROJECT_MIN and len(project.students) > PROJECT_MAX:
+        if len(project.students) < PROJECT_MIN or len(project.students) > PROJECT_MAX:
             return False
     return True
 
@@ -67,7 +67,10 @@ def assign_compatibility(student, projects: list):
 
 
 # Starting Point
+
 def run_matching(students: list, projects: list):
+
+    # Step 1
     projects_dict = populate_project_dict(projects)
 
     # Step 2
@@ -81,32 +84,59 @@ def run_matching(students: list, projects: list):
     # Step 4
     for student in students:
         student.compatibility = assign_compatibility(student, projects)
-        # print(student.compatibility)
 
-    # Step 5
-    ProjectList = []
+    list1 = run_matching_school_based(students, projects)
+    print(list1)
+    f = open("demo.txt", "w")
+    f.write(list1)
+    f.close()
+
+    # list3 = run_matching3(students, projects)
+
+
+def run_matching_school_based(students: list, projects: list):
+
+    projects_dict = populate_project_dict(projects)
+
+    # populating all projects with all students
     for project in projects:
-        StudentList = []
+        sutdentList = []
+        # generating student list for each project based on compatibility
         for student in students:
             data = (student.compatibility[project.title], student.name)
-            StudentList.append(data)
-        ProjectList.append(StudentList)
+            sutdentList.append(data)
+        projects_dict.update({project.title: sutdentList})
 
-    for i in range(len(ProjectList)):
-        ProjectList[i] = sorted(ProjectList[i], reverse=True)
-        # print(ProjectList[i])
-    ProjectList = sorted(ProjectList, reverse=True)
+    # sorting student lists in projects
+    for projectTitle in projects_dict.keys():
+        projects_dict.update(
+            {projectTitle: sorted(projects_dict[projectTitle], reverse=True)})
 
+    # sorting projects based on the hghest student compatibility score
+    projects_list = sorted(projects_dict.items(),
+                           key=lambda kv: kv[1], reverse=True)
+
+    # replacing students as best fit by the project after 
+    # min number of students in project met 
+    # ALGORITHM: Fix 1st student in 1st project. remove him/her from the rest. 
+    # Then the 1st in the 2nd project and continue until 1st students in all projects are fixed.
+    # Then the 2nd in the 1st project and so on...
     for i in range(PROJECT_MAX):
-        for StudentList in ProjectList:
-            if(i < len(StudentList)):
-                name = StudentList[i][1]
-                # print(f"removing {name}")
-                for StudentList2 in ProjectList:
-                    for data in StudentList2:
-                        if data[1] == name and StudentList != StudentList2:
-                            StudentList2.remove(data)
-                            # print(StudentList2)
+        for (projTitle, sutdentList) in projects_list:
+            if(i < len(sutdentList)):
+                name = sutdentList[i][1]
+                for (projTitle2, sutdentList2) in projects_list:
+                    for data in sutdentList2:
+                        if data[1] == name and sutdentList != sutdentList2:
+                            sutdentList2.remove(data)
 
-    for i in range(len(ProjectList)):
-        print(projects[i].title, ProjectList[i])
+    return projects_list
+
+
+def run_matching_student_based(students: list, projects: list):
+
+    # Step 1
+    projects_dict = populate_project_dict(projects)
+
+    
+    return []
