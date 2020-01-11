@@ -1,5 +1,5 @@
 # from main import Student, Project
-import heapq
+from tkinter import messagebox
 PROJECT_MIN = 6
 PROJECT_MAX = 10
 
@@ -79,6 +79,8 @@ def run_matching(students: list, projects: list):
     # Step 3
     if valid_project_student_sizes(projects_dict):
         # print("valid 1st")
+        messagebox.showinfo(
+            "Matched!", "All students placed in their first choice projects.")
         return list(projects_dict.values())
 
     # Step 4
@@ -86,9 +88,27 @@ def run_matching(students: list, projects: list):
         student.compatibility = assign_compatibility(student, projects)
 
     list1 = run_matching_school_based(students, projects)
-    print(list1)
-    f = open("demo.txt", "w")
-    f.write(list1)
+    list2 = run_matching_student_based(students, projects)
+
+    data_str = ""
+    for (projTitle, studentList) in list1:
+        new_title = projTitle.replace(",", "[comma]")
+        data_str += new_title
+        for student in studentList:
+            data_str = data_str + ", " + student[1]
+        data_str += "\n"
+    f = open("project_based.csv", "w")
+    f.write(data_str)
+    f.close()
+
+    data_str = ""
+    for (projTitle, studentList) in list2:
+        data_str += projTitle
+        for student in studentList:
+            data_str = data_str + ", " + student[1]
+        data_str += "\n"
+    f = open("student_based.csv", "w")
+    f.write(data_str)
     f.close()
 
     # list3 = run_matching3(students, projects)
@@ -96,16 +116,17 @@ def run_matching(students: list, projects: list):
 
 def run_matching_school_based(students: list, projects: list):
 
+    # populating projects
     projects_dict = populate_project_dict(projects)
 
     # populating all projects with all students
     for project in projects:
-        sutdentList = []
+        studentList = []
         # generating student list for each project based on compatibility
         for student in students:
             data = (student.compatibility[project.title], student.name)
-            sutdentList.append(data)
-        projects_dict.update({project.title: sutdentList})
+            studentList.append(data)
+        projects_dict.update({project.title: studentList})
 
     # sorting student lists in projects
     for projectTitle in projects_dict.keys():
@@ -116,27 +137,130 @@ def run_matching_school_based(students: list, projects: list):
     projects_list = sorted(projects_dict.items(),
                            key=lambda kv: kv[1], reverse=True)
 
-    # replacing students as best fit by the project after 
-    # min number of students in project met 
-    # ALGORITHM: Fix 1st student in 1st project. remove him/her from the rest. 
+    # replacing students as best fit by the project after
+    # min number of students in project met
+    # ALGORITHM: Fix 1st student in 1st project. remove him/her from the rest.
     # Then the 1st in the 2nd project and continue until 1st students in all projects are fixed.
     # Then the 2nd in the 1st project and so on...
     for i in range(PROJECT_MAX):
-        for (projTitle, sutdentList) in projects_list:
-            if(i < len(sutdentList)):
-                name = sutdentList[i][1]
-                for (projTitle2, sutdentList2) in projects_list:
-                    for data in sutdentList2:
-                        if data[1] == name and sutdentList != sutdentList2:
-                            sutdentList2.remove(data)
+        for (projTitle, studentList) in projects_list:
+            if(i < len(studentList)):
+                name = studentList[i][1]
+                for (projTitle2, studentList2) in projects_list:
+                    for data in studentList2:
+                        if data[1] == name and studentList != studentList2:
+                            studentList2.remove(data)
 
     return projects_list
 
 
 def run_matching_student_based(students: list, projects: list):
 
-    # Step 1
+    # populating projects
     projects_dict = populate_project_dict(projects)
 
-    
-    return []
+    # populating all projects with the first choice students
+    for project in projects:
+        studentList = []
+        # generating student list for each project based on first choice and compatibility
+        for student in students:
+            first_choice_name = student.preferences[1]
+            if project.title == first_choice_name:
+                data = (
+                    student.compatibility[project.title], student.name, student.preferences)
+                studentList.append(data)
+        projects_dict.update({project.title: studentList})
+
+    # sorting student lists in projects
+    for projectTitle in projects_dict.keys():
+        projects_dict.update(
+            {projectTitle: sorted(projects_dict[projectTitle], reverse=True)})
+
+    # sorting projects based on the student sizes
+    projects_list = sorted(projects_dict.items(),
+                           key=lambda k: len(k[1]), reverse=True)
+
+    minimum_met = {}
+    maximum_exceeded = {}
+    for (projTitle, studentList) in projects_list:
+        # che(cking if minimum number of students are filled
+        if len(studentList) < PROJECT_MIN:
+            minimum_met.update({projTitle: False})
+        else:
+            minimum_met.update({projTitle: True})
+
+        # checking if maximum number of students are exceeded
+        if len(studentList) > PROJECT_MAX-1:
+            maximum_exceeded.update({projTitle: True})
+        else:
+            maximum_exceeded.update({projTitle: False})
+
+    projects_dict = {}
+    for (projTitle, studentList) in projects_list:
+        projects_dict.update({projTitle: studentList})
+
+    # sorting first go: projects exceeding max students to send exceeding ones into second choices
+    for (projTitle, studentList) in projects_list:
+        if maximum_exceeded[projTitle]:
+            for i in range(len(studentList) - 1, PROJECT_MAX - 1, -1):
+                second_project = studentList[i][2][2]
+                if (not minimum_met[second_project]):
+                    projects_dict[second_project].append(
+                        studentList[i])
+                    projects_dict[projTitle].remove(studentList[i])
+                    if len(projects_dict[second_project]) >= PROJECT_MIN:
+                        minimum_met.update(
+                            {second_project: True})
+            for i in range(len(studentList) - 1, PROJECT_MAX - 1, -1):
+                second_project = studentList[i][2][2]
+                if (not maximum_exceeded[second_project]):
+                    projects_dict[second_project].append(
+                        studentList[i])
+                    projects_dict[projTitle].remove(studentList[i])
+                    if len(projects_dict[second_project]) > PROJECT_MAX-1:
+                        maximum_exceeded.update(
+                            {second_project: True})
+
+    # sorting projects based on the student sizes
+    projects_list = sorted(projects_dict.items(),
+                           key=lambda k: len(k[1]), reverse=True)
+
+    for (projTitle, studentList) in projects_list:
+        # che(cking if minimum number of students are filled
+        if len(studentList) < PROJECT_MIN:
+            minimum_met.update({projTitle: False})
+        else:
+            minimum_met.update({projTitle: True})
+
+        # checking if maximum number of students are exceeded
+        if len(studentList) > PROJECT_MAX-1:
+            maximum_exceeded.update({projTitle: True})
+        else:
+            maximum_exceeded.update({projTitle: False})
+
+    # sorting second go: projects exceeding max students to send exceeding ones into third choices
+    for (projTitle, studentList) in projects_list:
+        if maximum_exceeded[projTitle]:
+            for i in range(len(studentList) - 1, PROJECT_MAX - 1, -1):
+                third_project = studentList[i][2][3]
+                if (not minimum_met[third_project]):
+                    projects_dict[third_project].append(
+                        studentList[i])
+                    projects_dict[projTitle].remove(studentList[i])
+                    if len(projects_dict[third_project]) >= PROJECT_MIN:
+                        minimum_met.update(
+                            {third_project: True})
+            for i in range(len(studentList) - 1, PROJECT_MAX - 1, -1):
+                third_project = studentList[i][2][3]
+                if (not maximum_exceeded[third_project]):
+                    projects_dict[third_project].append(
+                        studentList[i])
+                    projects_dict[projTitle].remove(studentList[i])
+                    if len(projects_dict[third_project]) > PROJECT_MAX-1:
+                        maximum_exceeded.update(
+                            {third_project: True})
+
+    projects_list = sorted(projects_dict.items(),
+                           key=lambda k: len(k[1]), reverse=True)
+
+    return projects_list
