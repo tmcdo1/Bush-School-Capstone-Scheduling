@@ -103,7 +103,8 @@ def run_matching(students: list, projects: list):
 
     data_str = ""
     for (projTitle, studentList) in list2:
-        data_str += projTitle
+        new_title = projTitle.replace(",", "[comma]")
+        data_str += new_title
         for student in studentList:
             data_str = data_str + ", " + student[1]
         data_str += "\n"
